@@ -61,6 +61,7 @@ class ViewController: UIViewController {
         operations.append(displayedOperation)
         
         operationClicked = true
+        equalIsLastClicked = false
         
         if consecutiveOperationClicked(displayedOperation) == "plusOrMinus" {
             var result = 0.0
