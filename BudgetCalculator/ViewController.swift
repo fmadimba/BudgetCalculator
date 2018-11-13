@@ -63,19 +63,37 @@ class ViewController: UIViewController {
         operationClicked = true
         equalIsLastClicked = false
         
-        if consecutiveOperationClicked(displayedOperation) == "plusOrMinus" {
+        if displayedOperation == "+" {
+            globalTotal = globalTotal + displayedNumber
+        } else if displayedOperation == "-" {
+            globalTotal = globalTotal - displayedNumber
+        } else if displayedOperation == "/" {
+            globalTotal = globalTotal / displayedNumber
+        } else if displayedOperation == "*" {
+           globalTotal = globalTotal * displayedNumber
+        }
+        
+        consecutiveOperationClicked(displayedOperation)
+        
+        if plusOrMinus >= 2 {
             var result = 0.0
+            result = globalTotal
             
-            for i in 0..<(operations.count-1) {
-                if operations[i] == "+" {
-                    result += numbersToCompute[i] + numbersToCompute[i+1]
-                } else if operations[i] == "-" {
-                    result += numbersToCompute[i] - numbersToCompute[i+1]
-                }
-            }
+            displayLabel.text = String(removeTrailingZero(temp: result))
             
-        } else if consecutiveOperationClicked(displayedOperation) == "multiplyOrDivide" {
-            submit()
+            resetArrays()
+            resetOperationsLastClicked()
+            multiplyOrDivide = 0
+            
+        } else if multiplyOrDivide >= 2 {
+            var result = 0.0
+            result = globalTotal
+            
+            displayLabel.text = String(removeTrailingZero(temp: result))
+            
+            resetArrays()
+            resetOperationsLastClicked()
+            multiplyOrDivide = 0
         }
     }
     
@@ -170,29 +188,13 @@ class ViewController: UIViewController {
         return tempVar
     }
     
-    func consecutiveOperationClicked(_ operation: String) -> String {
-        var operationToReturn: String = ""
+    func consecutiveOperationClicked(_ operation: String) {
         
         if operation == "+" || operation == "-" {
             plusOrMinus = plusOrMinus + 1
         } else if operation == "*" || operation == "/" {
             multiplyOrDivide = multiplyOrDivide + 1
         }
-        
-        if plusOrMinus == 2 {
-            plusOrMinus = 0
-            multiplyOrDivide = 0
-            operationToReturn = "plusOrMinus"
-        }
-        
-        if multiplyOrDivide == 2 {
-            plusOrMinus = 0
-            multiplyOrDivide = 0
-            operationToReturn =  "multiplyOrDivide"
-        }
-        
-        return operationToReturn
-        
     }
     
     func submit() {
@@ -221,6 +223,5 @@ class ViewController: UIViewController {
         
         resetOperationsLastClicked()
     }
-    
 }
 
