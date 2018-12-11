@@ -19,6 +19,8 @@ class ViewController: UIViewController {
     var lastComputedNumber = 0.0
     var lastOperationClicked = ""
     var globalTotal = 0.0
+    var previousNumber = 0.0
+    var nextNumber = 0.0
     
     //for consecutive operation clicked beside equals
     var plusOrMinus = 0
@@ -29,6 +31,11 @@ class ViewController: UIViewController {
     var multiplyIsLastClicked: Bool = false
     var divideIsLastClicked: Bool = false
     var equalIsLastClicked: Bool = false
+    
+    var numberLastClicked: Bool = false
+    var plusEqualComb: Bool = false
+    
+    var oldOperation = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +56,7 @@ class ViewController: UIViewController {
         }
         
         operationClicked = false
+        numberLastClicked = true;
     }
     
     @IBAction func compute(_ sender: UIButton)  {
@@ -63,38 +71,58 @@ class ViewController: UIViewController {
         operationClicked = true
         equalIsLastClicked = false
         
-        if displayedOperation == "+" {
-            globalTotal = globalTotal + displayedNumber
-        } else if displayedOperation == "-" {
-            globalTotal = globalTotal - displayedNumber
-        } else if displayedOperation == "/" {
-            globalTotal = globalTotal / displayedNumber
-        } else if displayedOperation == "*" {
-           globalTotal = globalTotal * displayedNumber
+//        if displayedOperation == "+" && numberLastClicked == true {
+//            globalTotal = globalTotal + displayedNumber
+//        } else if displayedOperation == "-" && numberLastClicked == true {
+//            globalTotal = globalTotal - displayedNumber
+//        } else if displayedOperation == "/" && numberLastClicked == true {
+//            globalTotal = globalTotal / displayedNumber
+//        } else if displayedOperation == "*" && numberLastClicked == true {
+//           globalTotal = globalTotal * displayedNumber
+//        }
+        if( previousNumber == 0.0 ) {
+            previousNumber = displayedNumber
+        }  else {
+            nextNumber = displayedNumber
         }
         
         consecutiveOperationClicked(displayedOperation)
         
         if plusOrMinus >= 2 {
-            var result = 0.0
-            result = globalTotal
-            
-            displayLabel.text = String(removeTrailingZero(temp: result))
-            
-            resetArrays()
+            if oldOperation == "+" && numberLastClicked == true {
+                globalTotal = previousNumber + nextNumber
+            } else if oldOperation == "-" && numberLastClicked == true {
+                globalTotal = previousNumber - nextNumber
+            }
+
+            previousNumber = globalTotal
+            displayLabel.text = String(removeTrailingZero(temp: globalTotal))
+//            resetArrays()
             resetOperationsLastClicked()
+            plusOrMinus = 1
             multiplyOrDivide = 0
+//            plusEqualComb = true
             
         } else if multiplyOrDivide >= 2 {
-            var result = 0.0
-            result = globalTotal
+            if oldOperation == "*" && numberLastClicked == true {
+                globalTotal = previousNumber * nextNumber
+            } else if oldOperation == "/" && numberLastClicked == true {
+                globalTotal = previousNumber / nextNumber
+            }
             
-            displayLabel.text = String(removeTrailingZero(temp: result))
+            previousNumber = globalTotal
+            displayLabel.text = String(removeTrailingZero(temp: globalTotal))
             
-            resetArrays()
+//            resetArrays()
             resetOperationsLastClicked()
-            multiplyOrDivide = 0
+            multiplyOrDivide = 1
+            plusOrMinus = 0
+//            plusEqualComb = true
         }
+        numberLastClicked = false
+        
+        oldOperation = displayedOperation
+
     }
     
     @IBAction func equals()  {
@@ -117,6 +145,8 @@ class ViewController: UIViewController {
             operationClicked = true
             resetOperationsLastClicked()
             equalIsLastClicked = true
+            plusOrMinus = 0
+            multiplyOrDivide = 0
         }
         else {
             submit()
@@ -124,6 +154,8 @@ class ViewController: UIViewController {
             operationClicked = true
             resetOperationsLastClicked()
             equalIsLastClicked = true
+            plusOrMinus = 0
+            multiplyOrDivide = 0
         }
     }
     
@@ -135,6 +167,13 @@ class ViewController: UIViewController {
         lastOperationClicked = ""
         resetArrays()
         resetOperationsLastClicked()
+        plusOrMinus = 0
+        multiplyOrDivide = 0
+        previousNumber = 0.0
+        nextNumber = 0.0
+        oldOperation = ""
+        plusEqualComb = false
+        
     }
     
     @IBAction func addMinusSign() {
@@ -190,7 +229,7 @@ class ViewController: UIViewController {
     
     func consecutiveOperationClicked(_ operation: String) {
         
-        if operation == "+" || operation == "-" {
+        if operation == "+" || operation == "-"  {
             plusOrMinus = plusOrMinus + 1
         } else if operation == "*" || operation == "/" {
             multiplyOrDivide = multiplyOrDivide + 1
@@ -198,30 +237,52 @@ class ViewController: UIViewController {
     }
     
     func submit() {
-        var result = 0.0
-        
         displayedNumber = Double(displayLabel.text!)!
         numbersToCompute.append(displayedNumber)
-        
-        for i in 0..<operations.count {
-            if operations[i] == "+" {
-                result += numbersToCompute[i] + numbersToCompute[i+1]
-            } else if operations[i] == "-" {
-                result += numbersToCompute[i] - numbersToCompute[i+1]
-            } else if operations[i] == "/" {
-                result += numbersToCompute[i] / numbersToCompute[i+1]
-            } else if operations[i] == "*" {
-                result += numbersToCompute[i] * numbersToCompute[i+1]
+
+        if(plusEqualComb == true) {
+            globalTotal = globalTotal + displayedNumber
+        }
+        else {
+//            for i in 0..<operations.count {
+//                if operations[i] == "+" {
+//                    result += numbersToCompute[i] + numbersToCompute[i+1]
+//                } else if operations[i] == "-" {
+//                    result += numbersToCompute[i] - numbersToCompute[i+1]
+//                } else if operations[i] == "/" {
+//                    result += numbersToCompute[i] / numbersToCompute[i+1]
+//                } else if operations[i] == "*" {
+//                    result += numbersToCompute[i] * numbersToCompute[i+1]
+//                }
+//            }
+            if( previousNumber == 0.0 ) {
+                previousNumber = displayedNumber
+            }  else {
+                nextNumber = displayedNumber
+            }
+            
+            if oldOperation == "+" && numberLastClicked == true {
+                globalTotal = previousNumber + nextNumber
+            } else if oldOperation == "-" && numberLastClicked == true {
+                globalTotal = previousNumber - nextNumber
+            } else if oldOperation == "*" && numberLastClicked == true {
+                globalTotal = previousNumber * nextNumber
+            } else if oldOperation == "/" && numberLastClicked == true {
+                globalTotal = previousNumber / nextNumber
             }
         }
+
+        displayLabel.text = removeTrailingZero(temp: globalTotal)
         
-        displayLabel.text = removeTrailingZero(temp: result)
+        if operations.count > 0 {
+            lastOperationClicked = operations[operations.count - 1]
+            lastComputedNumber = numbersToCompute[numbersToCompute.count - 1]
+        }
         
-        globalTotal = result
-        lastOperationClicked = operations[operations.count - 1]
-        lastComputedNumber = numbersToCompute[numbersToCompute.count - 1]
+        previousNumber = globalTotal
         
-        resetOperationsLastClicked()
+        plusEqualComb = false
+
     }
 }
 
